@@ -1,75 +1,100 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Splash</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Splash</title>
 
-  <style>
-    body {
-      margin: 0;
-      background: black;
-      overflow: hidden;
-    }
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  background: black;
+  overflow: hidden;
+}
 
-    /* LOGO */
-    #logo {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 200px;
-      opacity: 0;
-      transition: opacity 1s ease;
-      z-index: 2;
-    }
+/* LOGO */
+#logo {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.6);
+  opacity: 0;
+  width: 160px;
+  z-index: 3;
+  transition: transform 0.8s ease, opacity 0.8s ease;
+}
 
-    /* 影片 */
-    #video {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      max-width: 100%;
-      max-height: 100%;
-      opacity: 0;
-      transition: opacity 1s ease;
-      z-index: 1;
-    }
-  </style>
+/* 顯示 */
+#logo.show {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* 放大消失 */
+#logo.hide {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(1.5);
+}
+
+/* 影片 */
+#video {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 100%;
+  max-height: 100%;
+  opacity: 0;
+  z-index: 1;
+  transition: opacity 1s ease;
+}
+
+#video.show {
+  opacity: 1;
+}
+</style>
 </head>
 
 <body>
 
-  <!-- LOGO -->
-  <img id="logo" src="https://bom8788-code.github.io/splash-video/logo.png">
+<img id="logo" src="https://bom8788-code.github.io/splash-video/logo.png">
 
-  <!-- 影片 -->
-  <video id="video" muted playsinline>
-    <source src="https://bom8788-code.github.io/splash-video/taiwan_app_intro.mp4" type="video/mp4">
-  </video>
+<video id="video" muted playsinline webkit-playsinline>
+  <source src="https://bom8788-code.github.io/splash-video/taiwan_app_intro.mp4" type="video/mp4">
+</video>
 
-  <script>
-    const logo = document.getElementById("logo");
-    const video = document.getElementById("video");
+<script>
+const logo = document.getElementById("logo");
+const video = document.getElementById("video");
 
-    // Step1: LOGO 淡入
-    setTimeout(() => {
-      logo.style.opacity = "1";
-    }, 100);
+/* ① LOGO 淡入 */
+setTimeout(() => {
+  logo.classList.add("show");
+}, 100);
 
-    // Step2: 2秒後 LOGO 消失 + 播影片
-    setTimeout(() => {
-      logo.style.opacity = "0";
-      video.style.opacity = "1";
-      video.play();
-    }, 2000);
+/* ② LOGO 放大淡出 */
+setTimeout(() => {
+  logo.classList.add("hide");
+}, 1800);
 
-    // Step3: 播完跳轉（可改）
-    video.onended = () => {
-      window.location.href = "https://google.com";
-    };
-  </script>
+/* ③ 影片顯示 */
+setTimeout(() => {
+  video.classList.add("show");
+
+  // iOS 必須 muted 才能自動播放
+  video.muted = true;
+  video.play().catch(() => {
+    console.log("自動播放被擋（正常）");
+  });
+
+}, 2000);
+
+/* ④ 播完跳轉 */
+video.onended = () => {
+  window.location.href = "https://google.com";
+};
+</script>
 
 </body>
 </html>
