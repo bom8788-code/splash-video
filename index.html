@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Splash</title>
+<title>Splash Pro Final</title>
 
 <style>
 html, body {
@@ -11,6 +11,17 @@ html, body {
   padding: 0;
   background: black;
   overflow: hidden;
+}
+
+/* 黑幕 */
+#overlay {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: black;
+  opacity: 1;
+  transition: opacity 0.8s ease;
+  z-index: 5;
 }
 
 /* LOGO */
@@ -21,17 +32,18 @@ html, body {
   transform: translate(-50%, -50%) scale(0.6);
   opacity: 0;
   width: 160px;
-  z-index: 3;
-  transition: transform 0.8s ease, opacity 0.8s ease;
+  z-index: 4;
+  transition: transform 0.8s cubic-bezier(0.34,1.56,0.64,1),
+              opacity 0.8s ease;
 }
 
-/* 顯示 */
+/* LOGO 顯示（彈出） */
 #logo.show {
   opacity: 1;
   transform: translate(-50%, -50%) scale(1);
 }
 
-/* 放大消失 */
+/* LOGO 放大淡出 */
 #logo.hide {
   opacity: 0;
   transform: translate(-50%, -50%) scale(1.5);
@@ -53,44 +65,71 @@ html, body {
 #video.show {
   opacity: 1;
 }
+
+/* loading（防卡） */
+#loading {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #aaa;
+  font-size: 12px;
+  opacity: 0.6;
+  z-index: 6;
+}
 </style>
 </head>
 
 <body>
 
+<div id="overlay"></div>
+
 <img id="logo" src="https://bom8788-code.github.io/splash-video/logo.png">
 
-<video id="video" muted playsinline webkit-playsinline>
+<video id="video" muted playsinline webkit-playsinline preload="auto">
   <source src="https://bom8788-code.github.io/splash-video/taiwan_app_intro.mp4" type="video/mp4">
 </video>
+
+<div id="loading">Loading...</div>
 
 <script>
 const logo = document.getElementById("logo");
 const video = document.getElementById("video");
+const overlay = document.getElementById("overlay");
+const loading = document.getElementById("loading");
 
-/* ① LOGO 淡入 */
+/* ① 黑幕淡出 */
+setTimeout(() => {
+  overlay.style.opacity = "0";
+}, 200);
+
+/* ② LOGO 彈出 */
 setTimeout(() => {
   logo.classList.add("show");
-}, 100);
+}, 300);
 
-/* ② LOGO 放大淡出 */
+/* ③ LOGO 放大淡出 */
 setTimeout(() => {
   logo.classList.add("hide");
 }, 1800);
 
-/* ③ 影片顯示 */
+/* ④ 影片準備好再播放（避免卡） */
+video.addEventListener("canplay", () => {
+  loading.style.display = "none";
+
+  setTimeout(() => {
+    video.classList.add("show");
+    video.play().catch(()=>{});
+  }, 200);
+});
+
+/* ⑤ fallback（避免某些手機不觸發 canplay） */
 setTimeout(() => {
   video.classList.add("show");
+  video.play().catch(()=>{});
+}, 2500);
 
-  // iOS 必須 muted 才能自動播放
-  video.muted = true;
-  video.play().catch(() => {
-    console.log("自動播放被擋（正常）");
-  });
-
-}, 2000);
-
-/* ④ 播完跳轉 */
+/* ⑥ 播完跳轉（改成你的APP） */
 video.onended = () => {
   window.location.href = "https://google.com";
 };
